@@ -1,8 +1,11 @@
 import discord
-import base64
 import os
+import asyncio
+from discord.ext import commands
+from help_cog import help_cog
+from music_cog import music_cog
 from google import genai
-from google.genai.types import Content, Part, GenerateContentConfig
+from google.genai.types import Content, GenerateContentConfig
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,6 +17,9 @@ client = discord.Client(intents=intents)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 MAX_MESSAGE_LENGTH = 2000
+
+client = commands.Bot(command_prefix="/", intents=intents)
+client.remove_command("help") 
 
 def split_message(text, max_length=MAX_MESSAGE_LENGTH):
     return [text[i:i+max_length] for i in range(0,len(text),max_length)]
@@ -63,8 +69,15 @@ async def on_message(message):
        parts = split_message(response)  
        for part in parts:
             await message.channel.send(part)
-        
+
+async def load_cogs():
+    await client.add_cog(help_cog(client))
+    await client.add_cog(music_cog(client))
 
 
-client.run(BOT_TOKEN)
+async def main():
+    async with client:
+        await load_cogs()
+        await client.start(BOT_TOKEN)
 
+asyncio.run(main())
