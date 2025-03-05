@@ -19,7 +19,7 @@ class music_cog(commands.Cog):
             try:
                 info=ydl.extract_info("ytsearch%s"%item,download=False)['entries'][0]
             except Exception:
-                return false
+                return False
         return {'source': info['formats'][0]['url'], 'title':info['title']}
     
     def play_next(self):
@@ -47,7 +47,7 @@ class music_cog(commands.Cog):
                     
                 self.music_queue.pop(0)
                 
-                self.self.vc.play(discord.FFmpegAudio(m_url,**self.FFMPEG_OPTIONS),after=lambda e:self.play_next())
+                self.vc.play(discord.FFmpegAudio(m_url,**self.FFMPEG_OPTIONS),after=lambda e:self.play_next())
             else:
                 self.is_playing=False
     @commands.command(name="play", aliases=["p", "playing"], help="Play the selected song")
@@ -59,9 +59,11 @@ class music_cog(commands.Cog):
         if voice_channel is None:
             await ctx.send("Connect to a voice channel!")
             return
-
+        if self.vc is None or not self.vc.is_connected():
+            self.vc = await self.music_queue[0][1].connect()
+            
         if self.is_paused:
-            self.vc.resume()
+            await self.vc.resume()
         else:
             song = self.search_yt(query)
             if isinstance(song, bool):  
@@ -91,7 +93,7 @@ class music_cog(commands.Cog):
             
     @commands.command(name="skip",help="Skips the song currently being played")
     async def skip(self,ctx,*args):
-        if self.vc != None and self.vc:
+        if self.vc is not None:
             self.vc.stop()
             await self.play_music(ctx)
             
@@ -115,7 +117,7 @@ class music_cog(commands.Cog):
         self.music_queue = []
         await ctx.send("Music queue cleared")
     @commands.command(name="leave",aliases=["disconnect","l","d"],help="kick the bot from voice channel")
-    async def clear(self,ctx):
+    async def leave(self,ctx):
         self.is_playing=False
         self.is_paused=False
         await self.vc.disconnect()
