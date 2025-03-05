@@ -37,6 +37,3 @@ This bot integrates the Gemini API to provide AI-powered responses in Discord ch
 2. Set up your environment variables (`DISCORD_BOT_TOKEN`, `GEMINI_API_KEY`).
 3. Run the bot using `python bot.py`.
 4. To Access the music, /<keyword><link>
-
-
-
