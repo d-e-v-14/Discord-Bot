@@ -2,16 +2,21 @@ import discord
 import base64
 import os
 from google import genai
-from google.genai.types import Content,Part,GenerateContentConfig
+from google.genai.types import Content, Part, GenerateContentConfig
 from dotenv import load_dotenv
 
 load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
-
 client = discord.Client(intents=intents)
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+MAX_MESSAGE_LENGTH = 2000
+
+def split_message(text, max_length=MAX_MESSAGE_LENGTH):
+    return [text[i:i+max_length] for i in range(0,len(text),max_length)]
 
 def generate(text):
     client = genai.Client(
@@ -55,7 +60,9 @@ async def on_message(message):
     if message.content.startswith('$'):
        user_input = message.content[1:]  
        response = generate(user_input)  
-       await message.channel.send(response) 
+       parts = split_message(response)  
+       for part in parts:
+            await message.channel.send(part)
         
 
 
