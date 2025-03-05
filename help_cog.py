@@ -19,13 +19,13 @@ class help_cog(commands.Cog):
         /resume - Resumes playing the song
         ```
         """
-        self.text_channels = []  # Fixed variable name
+        self.text_channels = []
 
     @commands.Cog.listener()
-    async def on_ready(self):  # Moved outside __init__
+    async def on_ready(self):  
         for guild in self.bot.guilds:
             for channel in guild.text_channels:
-                self.text_channels.append(channel)  # Fixed variable reference
+                self.text_channels.append(channel) 
 
         await self.send_to_all(self.help_message)
 
