@@ -19,7 +19,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 MAX=2000
 def split_message(text, max_length=MAX):
-    return [text[i:i+max_length] for i in range(0, len(text), max_length)]
+    return [text[i:i+max_length] for i in range(0, len(text),max_length)]
 
 def generate(text):
     client=genai.Client(
