@@ -11,7 +11,7 @@ class music_cog(commands.Cog): #music cog class created
         self.is_playing=False #tracks if the bot is playing or paused
         self.is_paused=False
 
-        self.music_queue=[] #empty list for quoes created
+        self.music_queue=[] #empty list for queues created
         self.YDL_OPTIONS={'format':'bestaudio/best', 'noplaylist': 'True'} #ensures best audio quality
         self.FFMPEG_OPTIONS={'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn -filter:a "volume=3.0"'}
         self.vc=None #stores the bots voice connection
@@ -92,6 +92,9 @@ class music_cog(commands.Cog): #music cog class created
             self.is_playing=False
             self.is_paused=True
             self.vc.pause()
+            embed = discord.Embed(title="PAUSED", description="bro? what's the matter with ya", color=discord.Color.blue())
+            await ctx.send(embed=embed)
+            
     #pause command definition
     @commands.command(name="resume", help="Resume the current song")
     async def resume(self,ctx,*args): #asynchronus function defined for pausing 
@@ -99,18 +102,34 @@ class music_cog(commands.Cog): #music cog class created
             self.is_playing=True
             self.is_paused=False
             self.vc.resume()
+            embed = discord.Embed(title="song resumed", description="Bro just resumed the song", color=discord.Color.blue())
+            await ctx.send(embed=embed)
+            
     #command to skip 
     @commands.command(name="skip", help="Skips the song currently being played")
     async def skip(self, ctx, *args):
         if self.vc is not None and self.vc.is_playing():  
             self.vc.stop()
             await self.play_music(ctx)
+            embed = discord.Embed(title="SONG SKIP", description="Bro just skipped the song", color=discord.Color.blue())
+            await ctx.send(embed=embed)
             
     #leave command for exiting the bot
     @commands.command(name="leave", aliases=["disconnect", "l", "d"], help="Kick the bot from voice channel")
     async def leave(self, ctx):
         if self.vc is not None:  
             await self.vc.disconnect() #disconnects bot from vc
+            embed = discord.Embed(title="DISCONNECT", description="Shame on you", color=discord.Color.blue())
+            await ctx.send(embed=embed)
             self.vc = None
         self.is_playing = False
         self.is_paused = False
+        
+    #displays the queue
+    @commands.command(name="queue", aliases=[ "q"], help="displays the queue")
+    async def queue(self, ctx):
+        if not self.music_queue:
+            return await ctx.send("Music Queue is empty!")
+        queue_list = "\n".join([f"{i+1}. {song}" for i,song in enumerate(self.music_queue)]) #creates a numbered list of songs
+        embed = discord.Embed(title="Music Queue", description=queue_list, color=discord.Color.blue())
+        await ctx.send(embed=embed)
