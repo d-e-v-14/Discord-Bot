@@ -12,31 +12,28 @@ load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix="/", intents=intents)
+bot.remove_command("help")  
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-MAX_MESSAGE_LENGTH = 2000
-
-client = commands.Bot(command_prefix="/", intents=intents)
-client.remove_command("help") 
-
-def split_message(text, max_length=MAX_MESSAGE_LENGTH):
-    return [text[i:i+max_length] for i in range(0,len(text),max_length)]
+MAX=2000
+def split_message(text, max_length=MAX):
+    return [text[i:i+max_length] for i in range(0, len(text), max_length)]
 
 def generate(text):
-    client = genai.Client(
+    client=genai.Client(
         api_key=os.getenv("GEMINI_API_KEY"),
     )
 
-    model = "gemini-2.0-flash"
-    contents = [
+    model="gemini-2.0-flash"
+    contents=[
         Content(
             role="user",
-            parts=[{"text": text}], 
+            parts=[{"text":text}], 
         ),
     ]
-    generate_content_config = GenerateContentConfig(
+    generate_content_config=GenerateContentConfig(
         temperature=1.55,
         top_p=0.95,
         top_k=40,
@@ -49,35 +46,39 @@ def generate(text):
         contents=contents,
         config=generate_content_config,
     ):
-        
         if chunk.text:
             response_text += chunk.text
     return response_text if response_text else "I couldn't generate a response"
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {bot.user}')
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author==bot.user:
         return
 
     if message.content.startswith('$'):
-       user_input = message.content[1:]  
-       response = generate(user_input)  
-       parts = split_message(response)  
+       user_input=message.content[1:]  
+       response=generate(user_input)  
+       parts=split_message(response)  
        for part in parts:
             await message.channel.send(part)
 
-async def load_cogs():
-    await client.add_cog(help_cog(client))
-    await client.add_cog(music_cog(client))
+    await bot.process_commands(message)  
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send(".")
+
+async def load_cogs():
+    await bot.add_cog(help_cog(bot))
+    await bot.add_cog(music_cog(bot))
 
 async def main():
-    async with client:
+    async with bot:
         await load_cogs()
-        await client.start(BOT_TOKEN)
+        await bot.start(BOT_TOKEN)
 
 asyncio.run(main())
