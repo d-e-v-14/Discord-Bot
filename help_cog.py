@@ -13,13 +13,13 @@ class help_cog(commands.Cog): #defines a help class
         Commands:
         
         /help - Displays all available commands
-        /p <keyword> - Plays the song in your channel
-        /q - Displays the current music queue
-        /skip - Skips the currently playing song
-        /clear - Stops the music and clears the queue
-        /leave - Disconnects the bot from voice channel
-        /pause - Pauses or resumes the song
-        /resume - Resumes playing the song
+        /p <keyword> - Plays the song 
+        /q - Displays the queue
+        /skip - Skips the song
+        /clear - Clears the queue
+        /leave - Disconnect Bot
+        /pause - Pause
+        /resume - Resume
         ```
         """
         self.text_channels = [] #list to store text channels
